@@ -3,12 +3,11 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./MongoModule/mongoConnect.js";
-import { findStation } from "./MongoModule/findDocument.js";
-import { insertStation } from "./MongoModule/insertDocument.js";
+import { findStation, findRoot, findBlock } from "./MongoModule/findDocument.js";
+import { insertStation, insertBr } from "./MongoModule/insertDocument.js";
 import {
     stationListSchema,
-    rootSchema,
-    blockSchema,
+    brSchema
 } from "./Schema/schemas.js";
 
 dotenv.config();
@@ -16,6 +15,9 @@ dotenv.config();
 const port = 8000;
 const { MONGODB_URI } = process.env;
 const StationList = stationListSchema(mongoose, "stationList");
+const BrList = brSchema(mongoose, "brList");
+const RootList = BrList.find({"type": "root"});
+const BlockList = BrList.find({"type": "block"});
 
 
 const app = express();
@@ -34,6 +36,26 @@ app.post("/station/insertStation", (req, res) => {
     insertStation(StationList, req.body.stationName);
     res.send("success")
 });
+
+app.get("/br/getRoot", async(req, res) => {
+    console.log(req.body);
+    let root = await findRoot(RootList, req.body);
+    console.log(root);
+    res.send("success");
+})
+
+app.get("/br/getBlock", async(req, res) => {
+    console.log(req.body);
+    let root = await findBlock(BlockList, req.body);
+    console.log(root);
+    res.send("success");
+})
+
+app.post("/br/insertBr", (req, res) => {
+    console.log(req.body);
+    insertBr(BrList, req.body);
+    res.send("success");
+})
 
 app.listen(port, () => {
     console.log(`port is listening at ${port}`);

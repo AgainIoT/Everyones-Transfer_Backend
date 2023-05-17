@@ -14,4 +14,34 @@ const insertStation = (StationList, stationName) => {
         });
 };
 
+const insertBr = (BrList, content) => {
+    let newBr;
+    if(content.type == "root"){
+        newBr = new BrList({
+            type: content.type,
+            source: {lineNum: content.source.lineNum, dir: content.source.dir},
+            destination: {lineNum: content.destination.lineNum, dir: content.destination.dir},
+            blockList: content.blocklist
+        });
+    }
+    else{
+        newBr = new BrList({
+            type: content.type,
+            from: content.from,
+            to: content.to,
+            content: content.content
+        });
+    }
+    newBr
+        .save()
+        .then((result) => {
+            console.log("[insertBr] " + result);
+        })
+        .catch((err) => {
+            console.log("[Br] error");
+            console.log(err);
+        });
+};
+
 export { insertStation };
+export { insertBr };
