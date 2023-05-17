@@ -21,7 +21,7 @@ const insertBr = (BrList, content) => {
             type: content.type,
             source: {lineNum: content.source.lineNum, dir: content.source.dir},
             destination: {lineNum: content.destination.lineNum, dir: content.destination.dir},
-            blockList: content.blocklist
+            blocklist: content.blocklist
         });
     }
     else{
