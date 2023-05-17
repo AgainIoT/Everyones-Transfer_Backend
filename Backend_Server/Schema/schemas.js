@@ -1,7 +1,15 @@
 const stationListSchema = (mongoose, collection) => {
+    delete mongoose.connection.models[collection];
+    const mappingDataSchema = new mongoose.Schema({
+        line: { type: Number, required: true },
+        num: { type: Number, required: true },
+        nextStation: { type: [String], required: true },
+    });
+
     const stationListModel = mongoose.Schema({
         stationName: { type: String, required: true },
-        rootList: { type: [mongoose.Schema.Types.ObjectId], required: false, ref : "root" },
+        collectionName: { type: String, required: true },
+        mappingData: { type: [mappingDataSchema], required: true },
         createdAt: { type: Date, default: Date.now },
     });
 
@@ -9,28 +17,11 @@ const stationListSchema = (mongoose, collection) => {
     return stationList;
 };
 
-const rootSchema = (mongoose, collection) => {
-    const rootModel = mongoose.Schema({
-        source: { type: String, required: true },
-        destination: { type: String, required: true },
-        blockList: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'block' },
-        createdAt: { type: Date, default: Date.now },
-    });
-
-    const root = mongoose.model(collection, rootModel);
-    return root;
-};
-
 const blockSchema = (mongoose, collection) => {
-    const blockModel = mongoose.Schema({
-        source: { type: String, required: true },
-        destination: { type: String, required: true },
-        content: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now },
+    delete mongoose.connection.models[collection];
+    const BLockSchema = new mongoose.Schema({
+        type: { type: String }, // block, root
     });
-
-    const block = mongoose.model(collection, blockModel);
-    return block;
 };
 
-export { stationListSchema, rootSchema, blockSchema };
+export { stationListSchema };
