@@ -1,8 +1,16 @@
 
 const stationListSchema = (mongoose, collection) => {
+    delete mongoose.connection.models[collection];
+    const mappingDataSchema = new mongoose.Schema({
+        line: { type: Number, required: true },
+        num: { type: Number, required: true },
+        nextStation: { type: [String], required: true },
+    });
+
     const stationListModel = mongoose.Schema({
         stationName: { type: String, required: true },
-        rootList: { type: [mongoose.Schema.Types.ObjectId], required: false, ref : "root" },
+        collectionName: { type: String, required: true },
+        mappingData: { type: [mappingDataSchema], required: true },
         createdAt: { type: Date, default: Date.now },
     });
 
