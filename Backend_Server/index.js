@@ -3,13 +3,18 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./MongoModule/mongoConnect.js";
-import { findStation, findRoot, findBlock } from "./MongoModule/findDocument.js";
+import {
+    findStation,
+    findRoot,
+    findBlock,
+} from "./MongoModule/findDocument.js";
 import { insertStation, insertBr } from "./MongoModule/insertDocument.js";
 import { updateRoot, updateBlock } from "./MongoModule/updateDocument.js";
 import { deleteRoot, deleteBlock } from "./MongoModule/deleteDocument.js";
 import {
     stationListSchema,
-    brSchema
+    rootSchema,
+    blockSchema,
 } from "./Schema/schemas.js";
 import { getStationInfo } from "./OpenAPI/stationInfoAPI.js";
 import request from "request";
@@ -18,10 +23,6 @@ dotenv.config();
 
 const port = 8000;
 const { MONGODB_URI } = process.env;
-const StationList = stationListSchema(mongoose, "stationList");
-const BrList = brSchema(mongoose, "brList");
-const RootList = BrList.find({"type": "root"});
-const BlockList = BrList.find({"type": "block"});
 
 const app = express();
 app.use(cors());
@@ -64,80 +65,64 @@ app.get("/station/getLine", async (req, res) => {
     });
 });
 
-app.get("/br/getRoot", async(req, res) => {
-    console.log(req.body);
-    let root = await findRoot(RootList, req.body);
-    console.log(root);
-    res.send("success");
-})
-
-app.get("/br/getBlock", async(req, res) => {
-    //console.log(req.body);
-    let block = await findBlock(BlockList, req.body);
-    console.log(block);
-    res.send("success");
-})
-
-app.post("/br/insertBr", (req, res) => {
-    console.log(req.body);
-    insertBr(BrList, req.body);
-    res.send("success");
-})
-
-app.patch("/br/updateRoot", async(req, res) => {
-    console.log(req.body);
-    let root = await updateRoot(RootList, req.body);
-    console.log(root);
-    res.send("success");
+app.get("/test/", async (req, res) => {
+    const Block = blockSchema(mongoose, "no1702");
+    await Block.findOne({ type: "block" })
+        .exec()
+        .then((result) => {
+            console.log(result);
+        });
+    const Root = rootSchema(mongoose, "no1702");
+    await Root.findOne({ type: "root" })
+        .exec()
+        .then((result) => {
+            console.log(result);
+        });
+    res.send("1");
 });
 
-app.patch("/br/updateBlock", async(req, res) => {
-    console.log(req.body);
-    let block = await updateBlock(BlockList, req.body);
-    console.log(block);
-    res.send("success");
+app.get("/test2/", async (req, res) => {
+    const Block = blockSchema(mongoose, "no1702");
+    const nblock = new Block({
+        type: "block",
+        source: "시작지점",
+        destination: "끝지점",
+        content: ["어쩌구", "저쩌구"],
+    });
+
+    nblock
+        .save()
+        .then((result) => {
+            console.log("[insertStation] " + result);
+        })
+        .catch((err) => {
+            console.log("[insertStation] error");
+            console.log(err);
+        });
+
+    const Root = rootSchema(mongoose, "no1702");
+    const nroot = new Root({
+        type: "root",
+        source: { line: "2", next: "신당" },
+        destination: { line: "5", next: "청구" },
+        blocklist: [],
+    });
+
+    nroot
+        .save()
+        .then((result) => {
+            console.log("[insertStation] " + result);
+        })
+        .catch((err) => {
+            console.log("[insertStation] error");
+            console.log(err);
+        });
+
+    res.send("1");
 });
-
-app.post("/br/deleteRoot", async(req, res) => {
-    console.log(req.body);
-    let root = await deleteRoot(RootList, req.body);
-    console.log(root);
-    res.send("success");
-})
-
-app.post("/br/deleteBlock", async(req, res) => {
-    console.log(req.body);
-    let block = await deleteBlock(BlockList, req.body);
-    console.log(block);
-    res.send("success");
-})
 
 app.listen(port, () => {
     console.log(`port is listening at ${port}`);
 });
 
-
 connectDB(mongoose, MONGODB_URI);
-
-
-// getStationInfo("가산디지털단지").then((result) => {
-//     // 서울역만 역을 붙임
-//     console.log(result.list_total_count);
-//     console.log(result.row);
-// });
-
-// createCollection()
-
-// request(
-//     {
-//         url: "https://api.odsay.com/v1/api/subwayStationInfo?lang=0&stationID=1405&apiKey=gVwPsIqng1dgToFhQ9vTQm5idr9yyT7dxPEVJmcEMnQ",
-//         method: "GET",
-//     }, (error, response, body) => {
-//         console.log(JSON.parse(body).result)
-//         console.log(JSON.parse(body).result.prevOBJ.station[0])
-//         console.log(JSON.parse(body).result.exOBJ)
-//         // console.log(JSON.parse(body).result.nextOBJ.station[0].stationName)
-//     }
-// )
-
-// 1607 - 312 = 1295

@@ -13,6 +13,22 @@ const findStation = (StationList, stationName) => {
     });
 };
 
+const find = (StationList, stationName) => {
+    return new Promise((resolve, reject) => {
+        StationList.findOne({ stationName: stationName })
+            .exec()
+            .then((result) => {
+                resolve(result);
+            })
+            .catch((err) => {
+                console.log("[findStation] error occured");
+                console.log(err);
+                reject(err);
+            });
+    });
+};
+
+
 const findRoot = (RootList, rootContent) => {
     return new Promise((resolve, reject) => {
         RootList.findOne({ "source.lineNum": rootContent.source.lineNum, 

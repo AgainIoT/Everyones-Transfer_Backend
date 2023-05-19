@@ -1,58 +1,69 @@
-
 const stationListSchema = (mongoose, collection) => {
     delete mongoose.connection.models[collection];
-    const mappingDataSchema = new mongoose.Schema({
-        line: { type: Number, required: true },
-        num: { type: Number, required: true },
-        nextStation: { type: [String], required: true },
+
+    const LineInfoSchema = new mongoose.Schema({
+        line: { type: String, required: true },
+        next: { type: [String], required: true },
     });
 
-    const stationListModel = mongoose.Schema({
+    const RootInfoSchema = new mongoose.Schema({
+        startAt: { type: LineInfoSchema, required: true },
+        endAt: { type: LineInfoSchema, required: true },
+        rootID: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: true,
+            ref: collection,
+        },
+    });
+
+    const stationListModel = new mongoose.Schema({
         stationName: { type: String, required: true },
         collectionName: { type: String, required: true },
-        mappingData: { type: [mappingDataSchema], required: true },
-        createdAt: { type: Date, default: Date.now },
+        lineInfo: { type: [String], required: true },
+        rootInfo: { type: [RootInfoSchema], required: true },
     });
 
     const stationList = mongoose.model(collection, stationListModel);
     return stationList;
 };
 
-/*
-{
-    type: root,
-    source: {호선: 2, 방향: 신당},
-    destination: {호선: 5, 방향: 청구},
-    blocklist: [block_id1, block_id2, block_id3]
-}
-{
-    type: block,
-    from: "1호선 승강장",
-    to: "5호선 승강장",
-    content: {엘베타고, 직진하고, 좌측 돌고}
-}
-*/
+const rootSchema = (mongoose, collection) => {
+    delete mongoose.connection.models[collection];
 
-const brSchema = (mongoose, collection) => {
-    const lineSchema = mongoose.Schema({
-        lineNum: Number,
-        dir: String
-    })
-
-    const brModel = mongoose.Schema({
-        type: {type: String, required: true},
-        source: {type: lineSchema, default: undefined, required: false},
-        destination: {type: lineSchema, default: undefined, required: false},
-        //blockList: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'block' },
-        blocklist: { type: [Number], default: undefined, required: false, ref: 'block' },
-        from: {type: String, default: undefined, required: false},
-        to: {type: String, default: undefined, required: false},
-        content: {type: [String], default: undefined, required: false},
-        createdAt: { type: Date, default: Date.now },
+    const rootModel = new mongoose.Schema({
+        type: { type: String, required: true, enum: ["root"] },
+        source: {
+            line: { type: String, required: true },
+            next: { type: String, required: true },
+        },
+        destination: {
+            line: { type: String, required: true },
+            next: { type: String, required: true },
+        },
+        blocklist: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: collection,
+            },
+        ],
     });
 
-    const br = mongoose.model(collection, brModel);
-    return br;
+    const root = mongoose.model(collection, rootModel);
+    return root;
 };
 
-export { stationListSchema, brSchema };
+const blockSchema = (mongoose, collection) => {
+    delete mongoose.connection.models[collection];
+
+    const blockModel = new mongoose.Schema({
+        type: { type: String, required: true, enum: ["block"] },
+        source: { type: String, required: true },
+        destination: { type: String, required: true },
+        content: { type: [String], required: true },
+    });
+
+    const block = mongoose.model(collection, blockModel);
+    return block;
+};
+
+export { stationListSchema, rootSchema, blockSchema };
