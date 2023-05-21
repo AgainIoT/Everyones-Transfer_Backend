@@ -23,17 +23,21 @@ const getStationInfo = (stationName) => {
             },
             (error, response, body) => {
                 if ((response.statusCode = 200)) {
-                    console.log("[getStationInfo] ");
+                    console.log("------------------------------------");
+                    console.log("[getStationInfo] success!");
                     var convertedBody = convert.xml2js(body, {
                         compact: true,
                         spaces: 4,
                     });
                     console.log(convertedBody.SearchInfoBySubwayNameService);
+                    console.log("------------------------------------");
                     resolve(convertedBody.SearchInfoBySubwayNameService);
                 } else {
+                    console.log("------------------------------------");
                     console.error("[getStationInfo] error!");
                     console.error(error);
-                    reject(false)
+                    console.log("------------------------------------");
+                    reject(false);
                 }
             }
         );
@@ -41,5 +45,3 @@ const getStationInfo = (stationName) => {
 };
 
 export { getStationInfo };
-
-

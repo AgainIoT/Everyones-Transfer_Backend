@@ -3,14 +3,14 @@ const stationListSchema = (mongoose, collection) => {
 
     const LineInfoSchema = new mongoose.Schema({
         line: { type: String, required: true },
-        next: { type: [String], required: true },
+        next: { type: String, required: true },
     });
 
     const RootInfoSchema = new mongoose.Schema({
         startAt: { type: LineInfoSchema, required: true },
         endAt: { type: LineInfoSchema, required: true },
         rootID: {
-            type: [mongoose.Schema.Types.ObjectId],
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: collection,
         },
@@ -18,7 +18,7 @@ const stationListSchema = (mongoose, collection) => {
 
     const stationListModel = new mongoose.Schema({
         stationName: { type: String, required: true },
-        collectionName: { type: String, required: true },
+        collectionID: { type: String, required: true },
         lineInfo: { type: [String], required: true },
         rootInfo: { type: [RootInfoSchema], required: true },
     });
@@ -40,12 +40,11 @@ const rootSchema = (mongoose, collection) => {
             line: { type: String, required: true },
             next: { type: String, required: true },
         },
-        blocklist: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: collection,
-            },
-        ],
+        blocklist: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: collection,
+            required: true,
+        },
     });
 
     const root = mongoose.model(collection, rootModel);
@@ -57,8 +56,16 @@ const blockSchema = (mongoose, collection) => {
 
     const blockModel = new mongoose.Schema({
         type: { type: String, required: true, enum: ["block"] },
-        source: { type: String, required: true },
-        destination: { type: String, required: true },
+        source: {
+            floor: { type: String, required: true },
+            line: { type: String, required: false },
+            location: { type: String, required: true },
+        },
+        destination: {
+            floor: { type: String, required: true },
+            line: { type: String, required: false },
+            location: { type: String, required: true },
+        },
         content: { type: [String], required: true },
     });
 

@@ -3,12 +3,14 @@ const connectDB = (mongoose, mongodb_uri) => {
         mongoose
             .connect(mongodb_uri)
             .then(() => {
-                console.log("[connectDB] MongoDB Connected")
+                console.log("[connectDB] MongoDB Connected");
                 resolve();
             })
             .catch((err) => {
-                console.log("[connectDB] MongoDB Error")
+                console.log("------------------------------------");
+                console.log("[connectDB] MongoDB Error");
                 console.log(err);
+                console.log("------------------------------------");
                 reject();
             });
     });
