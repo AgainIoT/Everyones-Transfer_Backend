@@ -7,14 +7,24 @@ import { insertStationList, insertRoot, insertBlock } from "./MongoModule/insert
 import { updateStationList, updateRoot, updateBlock } from "./MongoModule/updateDocument.js";
 import { getStationInfo } from "./OpenAPI/stationInfoAPI.js";
 import { findStationList, findBlockByPlace } from "./MongoModule/findDocument.js";
+import express_session from "express-session";
+import mongoose_session from "mongoose-session"
 dotenv.config();
 
 const port = 8000;
 const { MONGODB_URI } = process.env;
+const { AUTHENTICATION_KEY } = process.env;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express_session({
+    secret: AUTHENTICATION_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: mongoose_session(mongoose),
+    cookie: { maxAge: (3.6e+6) * 24 }
+}))
 
 app.get("/station/getLine", async (req, res) => {
     let stationInfo = {
@@ -34,9 +44,9 @@ app.get("/station/getLine", async (req, res) => {
     await getStationInfo(req.body.stationName)
         .then((result) => {
             if (result == undefined) {
-                res.send({ returnValue: false, errMsg: "역 이름이 아닙니다" });
+                res.json({ returnValue: false, errMsg: "역 이름이 아닙니다" });
             } else if (result.list_total_count._text == 1) {
-                res.send({ returnValue: false, errMsg: "환승역이 아닙니다" });
+                res.json({ returnValue: false, errMsg: "환승역이 아닙니다" });
             } else {
                 stationInfo.LineCnt = result.list_total_count._text;
                 stationInfo.returnValue = true;
@@ -48,7 +58,7 @@ app.get("/station/getLine", async (req, res) => {
                 console.log("[/station/getLine] success!");
                 console.log(stationInfo);
                 console.log("------------------------------------");
-                res.send(stationInfo);
+                res.json(stationInfo);
             }
         })
         .catch((err) => {
@@ -56,7 +66,7 @@ app.get("/station/getLine", async (req, res) => {
             console.log("[/station/getLine] error!");
             console.log(err);
             console.log("------------------------------------");
-            res.send({
+            res.json({
                 returnValue: false,
                 errMsg: "API에 조회가 되지 않습니다.",
             });
@@ -154,7 +164,7 @@ app.get("/root/getRoot", async (req, res) => {
     console.log(response);
     console.log("------------------------------------");
 
-    res.send(response);
+    res.json(response);
 });
 
 app.get("/block/getBlock", async (req, res) => {
@@ -180,7 +190,7 @@ app.get("/block/getBlock", async (req, res) => {
     console.log(response);
     console.log("------------------------------------");
 
-    res.send(response);
+    res.json(response);
 });
 
 app.patch("/block/patchBlock", async (req, res) => {
@@ -192,7 +202,7 @@ app.patch("/block/patchBlock", async (req, res) => {
             console.log("[/block/patchBlock]");
             console.log(response);
             console.log("------------------------------------");
-            res.send(response);
+            res.json(response);
         })
         .catch((err) => {
             response.returnValue = false;
@@ -202,7 +212,7 @@ app.patch("/block/patchBlock", async (req, res) => {
             console.log(response);
             console.log(err);
             console.log("------------------------------------");
-            res.send(response);
+            res.json(response);
         });
 });
 
@@ -215,7 +225,7 @@ app.patch("/root/patchRoot", async (req, res) => {
             console.log("[/block/patchRoot]");
             console.log(response);
             console.log("------------------------------------");
-            res.send(response);
+            res.json(response);
         })
         .catch((err) => {
             response.returnValue = false;
@@ -225,7 +235,7 @@ app.patch("/root/patchRoot", async (req, res) => {
             console.log(response);
             console.log(err);
             console.log("------------------------------------");
-            res.send(response);
+            res.json(response);
         });
 });
 
