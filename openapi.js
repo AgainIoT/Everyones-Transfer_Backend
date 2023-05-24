@@ -32,7 +32,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
                     console.log("[/openAPI/viewStation]");
                     console.log(response);
                     console.log("------------------------------------");
-                    res.status(404).send(response);
+                    res.status(404).json(response);
                 } else {
                     response = {
                         stationName: stationName + "역",
@@ -54,7 +54,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
                     console.log("[/openAPI/viewStation]");
                     console.log(response);
                     console.log("------------------------------------");
-                    res.status(200).send(response);
+                    res.status(200).json(response);
                 }
             })
             .catch((err) => {
@@ -68,7 +68,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
                 console.log(response);
                 console.log(err);
                 console.log("------------------------------------");
-                res.status(500).send(response);
+                res.status(500).json(response);
             });
     } else {
         response = {
@@ -80,7 +80,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
         console.log("[/openAPI/viewStation]");
         console.log(response);
         console.log("------------------------------------");
-        res.status(404).send(response);
+        res.status(404).json(response);
     }
 });
 
@@ -122,7 +122,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                     console.log("[/openAPI/viewRoot]");
                     console.log(response);
                     console.log("------------------------------------");
-                    res.status(404).send(response);
+                    res.status(404).json(response);
                 }
                 else {
                     collectionID = result.collectionID;
@@ -147,7 +147,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                         console.log("[/openAPI/viewRoot]");
                         console.log(response);
                         console.log("------------------------------------");
-                        res.status(404).send(response);
+                        res.status(404).json(response);
                     }
                     else {
                         makeBlockList(mongoose, collectionID, result.rootInfo[index].rootID, response)
@@ -156,7 +156,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                                 console.log("[/openAPI/viewRoot]");
                                 console.log(response);
                                 console.log("------------------------------------");
-                                res.status(500).send(response);
+                                res.status(500).json(response);
                             })
                     }
                 }
@@ -173,7 +173,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                 console.log(response);
                 console.log(err);
                 console.log("------------------------------------");
-                res.status(500).send(response);
+                res.status(500).json(response);
             });
         /* findStationList를 통해서 collectionID와 rootID를 뽑아낸다. */
     } else {
@@ -186,7 +186,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
         console.log("[/openAPI/viewRoot]");
         console.log(response);
         console.log("------------------------------------");
-        res.status(404).send(response);
+        res.status(404).json(response);
     }
     /* stationName이랑 start랑 end 중에 하나라도 없는 값이 있다면 */
 });
