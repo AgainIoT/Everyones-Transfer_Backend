@@ -6,7 +6,7 @@ import { connectDB } from "./MongoModule/mongoConnect.js";
 import { insertStationList, insertRoot, insertBlock } from "./MongoModule/insertDocument.js";
 import { updateStationList, updateRoot, updateBlock } from "./MongoModule/updateDocument.js";
 import { getStationInfo } from "./OpenAPI/stationInfoAPI.js";
-import { findStationList, findRootByID, findBlockByPlace, findBlockByID } from "./MongoModule/findDocument.js";
+import { findStationList, findRootByID, findBlockByPlace, findBlockByID, makeBlockList } from "./MongoModule/findDocument.js";
 import { dataToPlace } from "./convertModule/dataToPlace.js";
 dotenv.config();
 
@@ -159,7 +159,7 @@ app.get("/root/getRoot", async (req, res) => {
 });
 
 app.get("/block/getBlock", async (req, res) => {
-    const { collectionID, from, to } = req.body;
+    const { collectionID, from, to , content} = req.body;
     let response = {
         blockID: "",
         originContent: [],
@@ -169,7 +169,7 @@ app.get("/block/getBlock", async (req, res) => {
     let block = await findBlockByPlace(mongoose, collectionID, from, to);
 
     if (block == null) {
-        block = await insertBlock(mongoose, from, to, [], collectionID);
+        block = await insertBlock(mongoose, from, to, content, collectionID);
         response.blockID = block._id;
     } else {
         response.blockID = block._id;
@@ -340,99 +340,43 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                     console.log(response);
                     console.log("------------------------------------");
                     res.status(404).send(response);
-                } else {
+                } 
+                else {
                     collectionID = result.collectionID;
                     response.stationName = `${result.stationName}역`;
-
+                    
+                    let index = -1;
                     /* root의 갯수만큼 루트와 일치하는게 있는지 돌려본다 */
                     for (let i = 0; i < result.rootInfo.length; i++) {
                         /* root와 일치하는건 무조건 하나! */
-                        let index = -1;
                         if (result.rootInfo[i].startAt.next == start && result.rootInfo[i].endAt.next == end) {
                             index = i;
                             break;
                         }
-
-                        if (index != -1) {
-                            /* Root가 같은 것을 찾는다. */
-                            findRootByID(mongoose, collectionID, result.rootInfo[i].rootID)
-                                .then((root) => {
-                                    response.root.start.nextStation = root.source.next + "역";
-                                    response.root.start.line = root.source.line;
-                                    response.root.end.nextStation = root.destination.next + "역";
-                                    response.root.end.line = root.destination.line;
-
-                                    /* 블록들을 찾아서 하나하나 추가해준다. */
-                                    for (let ii = 0; ii < root.blocklist.length; ii++) {
-                                        findBlockByID(mongoose, collectionID, root.blocklist[ii])
-                                            .then((block) => {
-                                                let blockInfo = {
-                                                    source: dataToPlace(
-                                                        block.source.floor,
-                                                        block.source.line,
-                                                        block.source.location
-                                                    ),
-                                                    destination: dataToPlace(
-                                                        block.destination.floor,
-                                                        block.destination.line,
-                                                        block.destination.location
-                                                    ),
-                                                    content: block.content,
-                                                };
-                                                response.blockList.push(blockInfo);
-                                                console.log(response);
-                                                // console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                                            })
-                                            .catch((err) => {
-                                                response = {
-                                                    returnValue: false,
-                                                    errCode: 101,
-                                                    errMsg: "Server Error Occured",
-                                                };
-                                                console.log("------------------------------------");
-                                                console.log("[/openAPI/viewRoot] - findBlockByID");
-                                                console.log(response);
-                                                console.log(err);
-                                                console.log("------------------------------------");
-                                                res.status(500).send(response);
-                                            });
-                                        console.log(response);
-                                    }
-                                    /* 블록들을 찾아서 하나하나 추가해준다. */
-                                    console.log(response);
-                                })
-                                .catch((err) => {
-                                    response = {
-                                        returnValue: false,
-                                        errCode: 101,
-                                        errMsg: "Server Error Occured",
-                                    };
-                                    console.log("------------------------------------");
-                                    console.log("[/openAPI/viewRoot] - findRootByID");
-                                    console.log(response);
-                                    console.log(err);
-                                    console.log("------------------------------------");
-                                    res.status(500).send(response);
-                                });
-                            console.log(response);
-                        } else {
-                            // index가 -1이면 root data가 없다는 뜻!
-                            response = {
-                                returnValue: false,
-                                errCode: 103,
-                                errMsg: "Root data was not collected",
-                            };
-                            console.log("------------------------------------");
-                            console.log("[/openAPI/viewRoot]");
-                            console.log(response);
-                            console.log(err);
-                            console.log("------------------------------------");
-                            res.status(404).send(response);
-                        }
                     }
-                    /* root의 갯수만큼 루트와 일치하는게 있는지 돌려본다 */
+                    if(index == -1){
+                        response = {
+                            returnValue: false,
+                            errCode: 103,
+                            errMsg: "Root data was not collected",
+                        };
+                        console.log("------------------------------------");
+                        console.log("[/openAPI/viewRoot]");
+                        console.log(response);
+                        console.log("------------------------------------");
+                        res.status(404).send(response);
+                    }
+                    else{
+                        makeBlockList(mongoose, collectionID, result.rootInfo[index].rootID, response)
+                            .then((response) => {
+                                console.log("------------------------------------");
+                                console.log("[/openAPI/viewRoot]");
+                                console.log(response);
+                                console.log("------------------------------------");
+                                res.status(500).send(response);
+                            })
+                    }
                 }
-                // console.log(response);
                 /* result에 데이터가 있다, 데이터 처리 */
             })
             .catch((err) => {

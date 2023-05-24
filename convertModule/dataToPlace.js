@@ -3,7 +3,7 @@ const dataToPlace = (floor, line, location) => {
     if (line == null) {
         place = `${floor}층 ${location}`;
     } else {
-        place = `${floor}층 ${line} ${location}`;
+        place = `${floor}층 ${line}호선 ${location}`;
     }
 
     console.log("[dataToPlace] " + place);
