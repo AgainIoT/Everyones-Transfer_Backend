@@ -301,7 +301,7 @@ app.get("/cookie", (req, res) => {
     console.log(req.session);
     console.log(req.body.test);
     res.json({
-        test: req.session.collectionID,
+        cookie : req.session,
         tt: Object.keys(req.session).length,
     });
 });
