@@ -1,4 +1,5 @@
 import { stationListSchema, rootSchema, blockSchema } from "../Schema/schemas.js";
+import { dataToPlace } from "../convertModule/dataToPlace.js";
 
 const findStationList = (mongoose, stationName) => {
     return new Promise((resolve, reject) => {
@@ -114,4 +115,42 @@ const findBlockByPlace = (mongoose, collectionID, source, destination) => {
     });
 };
 
-export { findStationList, findRootByID, findBlockByPlace, findBlockByID };
+const makeBlockList = (mongoose, collectionID, rootID, response) => {
+    return new Promise((resolve, reject) => {
+        findRootByID(mongoose, collectionID, rootID)
+            .then(async(fRoot) => {
+                response.root.start.nextStation = fRoot.source.next + "역";
+                response.root.start.line = fRoot.source.line;
+                response.root.end.nextStation = fRoot.destination.next + "역";
+                response.root.end.line = fRoot.destination.line;
+                for(let i = 0; i < fRoot.blocklist.length; i++){
+                    await findBlockByID(mongoose, collectionID, fRoot.blocklist[i])
+                        .then((block) => {
+                            let blockInfo = {
+                                source: dataToPlace(
+                                    block.source.floor,
+                                    block.source.line,
+                                    block.source.location
+                                ),
+                                destination: dataToPlace(
+                                    block.destination.floor,
+                                    block.destination.line,
+                                    block.destination.location
+                                ),
+                                content: block.content,
+                            };
+                            response.blockList.push(blockInfo);
+                        })
+                }
+                //console.log(response);
+                resolve(response);
+            })
+            .catch((err) => {
+                console.log(err);
+                console.log("[makeBlockList] error");
+                reject(err);
+            })
+    })
+}
+
+export { findStationList, findRootByID, findBlockByPlace, findBlockByID, makeBlockList };
