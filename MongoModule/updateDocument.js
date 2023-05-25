@@ -53,6 +53,7 @@ const updateRoot = (mongoose, collectionID, rootID, blockID_List) => {
 
 const updateBlock = (mongoose, collectionID, blockID, newContent) => {
     return new Promise((resolve, reject) => {
+        console.log(collectionID)
         const Block = blockSchema(mongoose, collectionID);
         Block.updateOne({ _id: blockID }, { $set: { content: newContent } })
             .exec()

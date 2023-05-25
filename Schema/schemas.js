@@ -30,6 +30,7 @@ const stationListSchema = (mongoose, collection) => {
 const rootSchema = (mongoose, collection) => {
     delete mongoose.connection.models[collection];
 
+    console.log(collection)
     const rootModel = new mongoose.Schema({
         type: { type: String, required: true, enum: ["root"] },
         source: {

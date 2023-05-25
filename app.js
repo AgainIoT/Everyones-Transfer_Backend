@@ -8,7 +8,7 @@ import { updateStationList, updateRoot, updateBlock } from "./MongoModule/update
 import { getStationInfo } from "./OpenAPI/stationInfoAPI.js";
 import { findStationList, findBlockByPlace } from "./MongoModule/findDocument.js";
 import express_session from "express-session";
-import mongoose_session from "mongoose-session"
+import MongoStore from "connect-mongo";
 dotenv.config();
 
 const port = 8000;
@@ -18,15 +18,19 @@ const { AUTHENTICATION_KEY } = process.env;
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express_session({
-    secret: AUTHENTICATION_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: mongoose_session(mongoose),
-    cookie: { maxAge: (3.6e+6) * 24 }
-}))
+app.use(
+    express_session({
+        secret: AUTHENTICATION_KEY,
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: MONGODB_URI,
+        }),
+        cookie: { maxAge: 3.6e6 * 24 },
+    })
+);
 
-app.get("/station/getLine", async (req, res) => {
+app.get("/station/getStationList", async (req, res) => {
     let stationInfo = {
         stationName: req.body.stationName,
         collectionID: "",
@@ -58,6 +62,9 @@ app.get("/station/getLine", async (req, res) => {
                 console.log("[/station/getLine] success!");
                 console.log(stationInfo);
                 console.log("------------------------------------");
+                req.session.collectionID = stationInfo.collectionID; // session 설정
+                req.session.line = stationInfo.Line;
+                req.session.stationName = stationInfo.stationName;
                 res.json(stationInfo);
             }
         })
@@ -73,9 +80,35 @@ app.get("/station/getLine", async (req, res) => {
         });
 });
 
+app.get("/test", (req, res) => {
+    console.log(req.session);
+    console.log(req.body.test);
+    res.json({
+        test: req.session.collectionID,
+        tt: Object.keys(req.session).length,
+    });
+});
+
+app.get("/remove", (req, res) => {
+    res.json({
+        test: req.session.collectionID,
+    });
+    req.session.destroy((err) => {
+        console.log(err);
+    });
+});
+
 app.get("/root/getRoot", async (req, res) => {
     // startAt이랑 endAt을 한번 더 검사하는 부분 추가했으면 좋겠음
+
     let { stationName, collectionID, startAt, endAt, line } = req.body;
+
+    console.log(req.session);
+    if (Object.keys(req.session).length > 1) {
+        collectionID = req.session.collectionID;
+        line = req.session.line;
+        stationName = req.session.stationName;
+    }
 
     let response = {
         collectionID: collectionID,
@@ -106,6 +139,7 @@ app.get("/root/getRoot", async (req, res) => {
     let newStationInfo;
 
     if (stationInfo == null) {
+        console.log("stationList에 해당 역이 존재하지 않는다.");
         // stationList에 해당 역이 존재하지 않는다.
         newStationInfo = {
             stationName: stationName,
@@ -121,6 +155,7 @@ app.get("/root/getRoot", async (req, res) => {
         };
     } else {
         // stationList에 해당 역이 존재한다.
+        console.log("stationList에 해당 역이 존재한다.");
         for (let i = 0; i < stationInfo.rootInfo.length; i++) {
             if (
                 stationInfo.rootInfo[i].startAt.next == startAt.next &&
@@ -134,6 +169,7 @@ app.get("/root/getRoot", async (req, res) => {
     }
 
     if (response.rootID == "") {
+        console.log("stationList에 해당 역의 데이터에, 해당 루트가 존재하지 않는다.");
         // stationList에 해당 역의 데이터에, 해당 루트가 존재하지 않는다.
         await insertRoot(mongoose, rootInfo, response.collectionID).then(
             // 루트를 만들어준다.
@@ -145,16 +181,20 @@ app.get("/root/getRoot", async (req, res) => {
     }
 
     if (newStationInfo != undefined) {
+        console.log("stationList에 해당 역의 데이터가 없으니 추가해준다. -> insert");
         // stationList에 해당 역의 데이터가 없으니 추가해준다. -> insert
         newStationInfo.rootInfo[0].rootID = response.rootID;
         console.log(newStationInfo);
         insertStationList(mongoose, newStationInfo);
     } else if (flag) {
+        console.log(
+            "stationList에 해당 역에 대한 데이터는 있으나, 해당 루트에 대한 데이터는 존재하지 않는다. -> update"
+        );
         // stationList에 해당 역에 대한 데이터는 있으나, 해당 루트에 대한 데이터는 존재하지 않는다. -> update
         let newRootInfo = {
             startAt: startAt,
             endAt: endAt,
-            rootID: response.rootInfo[0].rootID,
+            rootID: response.rootID,
         };
         updateStationList(mongoose, newRootInfo, stationName);
     }
@@ -163,12 +203,18 @@ app.get("/root/getRoot", async (req, res) => {
     console.log("[/root/getRoot]");
     console.log(response);
     console.log("------------------------------------");
-
+    req.session.rootID = response.rootID; // session 설정
+    req.session.blockID_List = [];
     res.json(response);
 });
 
 app.get("/block/getBlock", async (req, res) => {
-    const { collectionID, from, to, content } = req.body;
+    let { collectionID, from, to, content } = req.body;
+
+    if (Object.keys(req.session).length > 1) {
+        collectionID = req.session.collectionID;
+    }
+
     let response = {
         blockID: "",
         originContent: [],
@@ -190,11 +236,24 @@ app.get("/block/getBlock", async (req, res) => {
     console.log(response);
     console.log("------------------------------------");
 
+    req.session.blockID = response.blockID; // session 설정
+    console.log(req.session);
+    if (!req.session.blockID_List) {
+        req.session.blockID_List = [response.blockID];
+    } else {
+        req.session.blockID_List.push(response.blockID);
+    }
     res.json(response);
 });
 
 app.patch("/block/patchBlock", async (req, res) => {
-    const { collectionID, blockID, content } = req.body;
+    let { collectionID, blockID, content } = req.body;
+
+    if (Object.keys(req.session).length > 1) {
+        collectionID = req.session.collectionID;
+        blockID = req.session.blockID;
+    }
+
     let response = { returnValue: true };
     await updateBlock(mongoose, collectionID, blockID, content)
         .then((result) => {
@@ -217,7 +276,16 @@ app.patch("/block/patchBlock", async (req, res) => {
 });
 
 app.patch("/root/patchRoot", async (req, res) => {
-    const { collectionID, rootID, blockID_List } = req.body;
+    let { collectionID, rootID, blockID_List } = req.body;
+
+    console.log(req.session);
+
+    if (Object.keys(req.session).length > 1) {
+        collectionID = req.session.collectionID;
+        rootID = req.session.rootID;
+        blockID_List = req.session.blockID_List;
+    }
+
     let response = { returnValue: true };
     await updateRoot(mongoose, collectionID, rootID, blockID_List)
         .then((result) => {
@@ -225,6 +293,14 @@ app.patch("/root/patchRoot", async (req, res) => {
             console.log("[/block/patchRoot]");
             console.log(response);
             console.log("------------------------------------");
+            req.session.destroy((err) => {
+                if (err) {
+                    console.log("[block/patchRoot] session error!");
+                    console.log(err);
+                } else {
+                    console.log("[block/patchRoot] session successfully destroyed");
+                }
+            });
             res.json(response);
         })
         .catch((err) => {
