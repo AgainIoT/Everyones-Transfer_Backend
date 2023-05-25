@@ -12,8 +12,7 @@ import MongoStore from "connect-mongo";
 dotenv.config();
 
 const port = 8000;
-const { MONGODB_URI } = process.env;
-const { AUTHENTICATION_KEY } = process.env;
+const { MONGODB_URI, AUTHENTICATION_KEY, APP_KEY } = process.env;
 
 const app = express();
 app.use(cors());
@@ -65,6 +64,7 @@ app.get("/station/getStationList", async (req, res) => {
                 req.session.collectionID = stationInfo.collectionID; // session 설정
                 req.session.line = stationInfo.Line;
                 req.session.stationName = stationInfo.stationName;
+                req.session.APP_KEY = req.body.APP_KEY;
                 res.json(stationInfo);
             }
         })
@@ -82,6 +82,13 @@ app.get("/station/getStationList", async (req, res) => {
 
 app.get("/root/getRoot", async (req, res) => {
     // startAt이랑 endAt을 한번 더 검사하는 부분 추가했으면 좋겠음
+    if (req.session.APP_KEY != APP_KEY) {
+        res.send({
+            returnValue: false,
+            errMsg: "APP_KEY가 일치하지 않습니다.",
+        });
+        return;
+    }
 
     let { stationName, collectionID, startAt, endAt, line } = req.body;
 
@@ -191,6 +198,13 @@ app.get("/root/getRoot", async (req, res) => {
 });
 
 app.get("/block/getBlock", async (req, res) => {
+    if (req.session.APP_KEY != APP_KEY) {
+        res.send({
+            returnValue: false,
+            errMsg: "APP_KEY가 일치하지 않습니다.",
+        });
+        return;
+    }
     let { collectionID, from, to, content } = req.body;
 
     if (Object.keys(req.session).length > 1) {
@@ -229,6 +243,13 @@ app.get("/block/getBlock", async (req, res) => {
 });
 
 app.patch("/block/patchBlock", async (req, res) => {
+    if (req.session.APP_KEY != APP_KEY) {
+        res.send({
+            returnValue: false,
+            errMsg: "APP_KEY가 일치하지 않습니다.",
+        });
+        return;
+    }
     let { collectionID, blockID, content } = req.body;
 
     if (Object.keys(req.session).length > 1) {
@@ -258,6 +279,13 @@ app.patch("/block/patchBlock", async (req, res) => {
 });
 
 app.patch("/root/patchRoot", async (req, res) => {
+    if (req.session.APP_KEY != APP_KEY) {
+        res.send({
+            returnValue: false,
+            errMsg: "APP_KEY가 일치하지 않습니다.",
+        });
+        return;
+    }
     let { collectionID, rootID, blockID_List } = req.body;
 
     console.log(req.session);
@@ -301,7 +329,7 @@ app.get("/cookie", (req, res) => {
     console.log(req.session);
     console.log(req.body.test);
     res.json({
-        cookie : req.session,
+        cookie: req.session,
         tt: Object.keys(req.session).length,
     });
 });
