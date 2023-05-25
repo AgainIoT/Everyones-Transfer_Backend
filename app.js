@@ -80,24 +80,6 @@ app.get("/station/getStationList", async (req, res) => {
         });
 });
 
-app.get("/test", (req, res) => {
-    console.log(req.session);
-    console.log(req.body.test);
-    res.json({
-        test: req.session.collectionID,
-        tt: Object.keys(req.session).length,
-    });
-});
-
-app.get("/remove", (req, res) => {
-    res.json({
-        test: req.session.collectionID,
-    });
-    req.session.destroy((err) => {
-        console.log(err);
-    });
-});
-
 app.get("/root/getRoot", async (req, res) => {
     // startAt이랑 endAt을 한번 더 검사하는 부분 추가했으면 좋겠음
 
@@ -313,6 +295,24 @@ app.patch("/root/patchRoot", async (req, res) => {
             console.log("------------------------------------");
             res.json(response);
         });
+});
+
+app.get("/cookie", (req, res) => {
+    console.log(req.session);
+    console.log(req.body.test);
+    res.json({
+        test: req.session.collectionID,
+        tt: Object.keys(req.session).length,
+    });
+});
+
+app.get("/remove", (req, res) => {
+    res.json({
+        test: req.session.collectionID,
+    });
+    req.session.destroy((err) => {
+        console.log(err);
+    });
 });
 
 app.listen(port, () => {
