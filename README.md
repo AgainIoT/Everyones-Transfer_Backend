@@ -23,6 +23,12 @@ MONGODB_URI = "<위에서 만든 user에 대한 MongoDB URI 사용>"
 
 # 서울 열린데이터 광장 API Key
 API_KEY = "<위에서 발급 받은 서울 열린데이터 광장 API Key 사용>"
+
+# Session 암호화 key
+AUTHENTICATION_KEY = "<자신이 사용할 session secret key>"
+
+# 앱 전용 접근 키
+APP_KEY = "<자신이 사용할 앱 전용 접근 키>"
 ```
 
 <br>
@@ -32,4 +38,28 @@ API_KEY = "<위에서 발급 받은 서울 열린데이터 광장 API Key 사용
 
 ```bash
 yarn install
+```
+
+<br>
+
+### 테스트 환경
+- Ubuntu OS : 22.04.2 LTS (Jammy Jellyfish)
+- Node.js : v18.16.0 LTS
+- Yarn : 1.22.19
+- 사용 port : 8000(app.js), 3000(openapi.js)
+
+<br>
+
+### 서버 관리 모듈
+- forever, nodemon 사용 <br>
+    _빠른 설치 : `sudo bash setup.sh`_
+
+<br>
+
+### 빠른 실행
+yarn-script를 통해 빠른 실행을 할 수 있다.
+```bash
+yarn app-start # app.js 실행(app 전용)
+yarn openapi-start # openapi.js 실행(openapi 제공용)
+yarn start # app.js와 openapi.js 한 번에 실행
 ```

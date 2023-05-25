@@ -18,6 +18,7 @@
   },
   "scripts": {
     "app-start": "forever start -c nodemon app.js",
-    "openapi-start": "forever start -c nodemon openapi.js"
+    "openapi-start": "forever start -c nodemon openapi.js",
+    "start": "forever start -c nodemon app.js && forever start -c nodemon openapi.js"
   }
 }
