@@ -42,7 +42,7 @@ yarn install
 
 <br>
 
-### 테스트 환경
+## 테스트 환경
 - Ubuntu OS : 22.04.2 LTS (Jammy Jellyfish)
 - Node.js : v18.16.0 LTS
 - Yarn : 1.22.19
@@ -56,10 +56,15 @@ yarn install
 
 <br>
 
-### 빠른 실행
+## 빠른 실행
 yarn-script를 통해 빠른 실행을 할 수 있다.
 ```bash
 yarn app-start # app.js 실행(app 전용)
 yarn openapi-start # openapi.js 실행(openapi 제공용)
 yarn start # app.js와 openapi.js 한 번에 실행
 ```
+
+<br>
+
+## LICENSE
+이 프로젝트는 MIT 라이선스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
