@@ -20,4 +20,6 @@ jobs:
           token: ${{ secrets.ADMIN_KEY }}
 
       - name: ls al
-        run : ls -al
+        run: |
+            git remote add SK-Sunny_Backend git@github:AgainIot/SK-Sunny_Backend.git
+            git subtree pull --prefix=/backend SK-Sunny_Backend main --squash
