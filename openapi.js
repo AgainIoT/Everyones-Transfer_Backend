@@ -9,7 +9,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import { options } from './swagger/config.js';
 dotenv.config();
 
-const port = 8000;
+const port = 3000;
 const { MONGODB_URI } = process.env;
 
 const app = express();
@@ -28,7 +28,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
                 if (result == null) {
                     response = {
                         returnValue: false,
-                        errCode: 100,
+                        errCode: 101,
                         errMsg: "Data was not collected or this station doesn't exist",
                     };
                     console.log("------------------------------------");
@@ -63,7 +63,7 @@ app.get("/openAPI/viewStation", async (req, res) => {
             .catch((err) => {
                 response = {
                     returnValue: false,
-                    errCode: 101,
+                    errCode: 102,
                     errMsg: "Server Error Occured",
                 };
                 console.log("------------------------------------");
@@ -76,14 +76,14 @@ app.get("/openAPI/viewStation", async (req, res) => {
     } else {
         response = {
             returnValue: false,
-            errCode: 102,
+            errCode: 100,
             errMsg: "Incorrect query",
         };
         console.log("------------------------------------");
         console.log("[/openAPI/viewStation]");
         console.log(response);
         console.log("------------------------------------");
-        res.status(404).json(response);
+        res.status(403).json(response);
     }
 });
 
@@ -118,7 +118,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                 if (result == null) {
                     response = {
                         returnValue: false,
-                        errCode: 100,
+                        errCode1: 101,
                         errMsg: "Data was not collected or this station doesn't exist",
                     };
                     console.log("------------------------------------");
@@ -143,8 +143,8 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                     if (index == -1) {
                         response = {
                             returnValue: false,
-                            errCode: 103,
-                            errMsg: "Root data was not collected",
+                            errCode: 101,
+                            errMsg: "Data was not collected or this station doesn't exist",
                         };
                         console.log("------------------------------------");
                         console.log("[/openAPI/viewRoot]");
@@ -168,7 +168,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
             .catch((err) => {
                 response = {
                     returnValue: false,
-                    errCode: 101,
+                    errCode: 102,
                     errMsg: "Server Error Occured",
                 };
                 console.log("------------------------------------");
@@ -182,14 +182,14 @@ app.get("/openAPI/viewRoot", async (req, res) => {
     } else {
         response = {
             returnValue: false,
-            errCode: 102,
+            errCode: 100,
             errMsg: "Incorrect query",
         };
         console.log("------------------------------------");
         console.log("[/openAPI/viewRoot]");
         console.log(response);
         console.log("------------------------------------");
-        res.status(404).json(response);
+        res.status(403).json(response);
     }
     /* stationName이랑 start랑 end 중에 하나라도 없는 값이 있다면 */
 });

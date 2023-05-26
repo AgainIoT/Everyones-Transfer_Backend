@@ -4,7 +4,7 @@ export const options = {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: '서울 지하철 환승지도 openAPI',
+        title: '서울특별시 교통약자 지하철 환승지도 openAPI',
         version: '1.0.0',
       },
     },
