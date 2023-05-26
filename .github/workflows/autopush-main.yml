@@ -23,5 +23,5 @@ jobs:
         run: |
             git remote add SK-Sunny_Backend https://github.com/AgainIot/SK-Sunny_Backend.git
             ls -al
-            git subtree pull --prefix=backend SK-Sunny_Backend main --allow-unrelated-histories
+            git subtree pull --prefix=backend SK-Sunny_Backend main --squash -m "[GitHub Workflow] Auto-push Backend"
             git push
