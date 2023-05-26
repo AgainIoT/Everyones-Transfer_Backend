@@ -1,4 +1,4 @@
-// boards.swagger.js
+// openAPI.swagger.js
 
 /**
  * @swagger
