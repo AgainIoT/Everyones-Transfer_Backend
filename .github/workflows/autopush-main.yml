@@ -1,0 +1,27 @@
+name: Update Subtree
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_subtree:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update Subtree
+        run: |
+          git remote add SK-Sunny_Main https://github.com/AgainIoT/SK-Sunny_Main
+          git fetch SK-Sunny_Main
+          git subtree pull --prefix=/backend SK-Sunny_Main/main --squash
+
+      - name: Push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git commit -am "[GitHub Workflow] Auto-Update Backend Update-Commit"
+          git push
