@@ -4,24 +4,20 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  update_subtree:
+  update_SK-Sunny_Main:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Check out SK-Sunny_Main
+        uses: actions/checkout@master
+        with:
+          repository: AgainIot/SK-Sunny_Main
+          token: ${{ secrets.ADMIN_KEY }}
 
-      - name: Update Subtree
-        run: |
-          git remote add SK-Sunny_Main https://github.com/AgainIoT/SK-Sunny_Main
-          git fetch SK-Sunny_Main
-          git subtree pull --prefix=/backend SK-Sunny_Main/main --squash
-
-      - name: Push changes
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git commit -am "[GitHub Workflow] Auto-Update Backend Update-Commit"
-          git push
+      - name: ls al
+        run : ls -al
