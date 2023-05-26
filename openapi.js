@@ -4,9 +4,12 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./MongoModule/mongoConnect.js";
 import { findStationList, makeBlockList } from "./MongoModule/findDocument.js";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
+import { options } from './swagger/config.js';
 dotenv.config();
 
-const port = 3000;
+const port = 8000;
 const { MONGODB_URI } = process.env;
 
 const app = express();
@@ -156,7 +159,7 @@ app.get("/openAPI/viewRoot", async (req, res) => {
                                 console.log("[/openAPI/viewRoot]");
                                 console.log(response);
                                 console.log("------------------------------------");
-                                res.status(500).json(response);
+                                res.status(200).json(response);
                             })
                     }
                 }
@@ -190,6 +193,8 @@ app.get("/openAPI/viewRoot", async (req, res) => {
     }
     /* stationName이랑 start랑 end 중에 하나라도 없는 값이 있다면 */
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(options)));
 
 app.listen(port, () => {
     console.log(`port is listening at ${port}`);
