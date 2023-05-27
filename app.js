@@ -113,6 +113,105 @@ app.get("/root/getRoot", async (req, res) => {
 
     let flag = true;
 
+    if (
+        collectionID == undefined ||
+        line == undefined ||
+        stationName == undefined ||
+        startAt == undefined ||
+        endAt == undefined
+    ) {
+        res.status(404).json({
+            returnValue: false,
+            errMsg: "Incorrect Query!",
+        });
+        return;
+    }
+    let result_startAt, result_endAt;
+    let startAt_flag = true,
+        endAt_flag = true;
+
+    if (startAt.next == "서울") startAt.next = "서울역";
+    if (endAt.next == "서울") endAt.next = "서울역";
+
+    await getStationInfo(startAt.next)
+        .then((result) => {
+            result_startAt = result;
+        })
+        .catch((err) => {});
+    await getStationInfo(endAt.next)
+        .then((result) => {
+            result_endAt = result;
+        })
+        .catch((err) => {});
+
+    if (result_startAt == undefined || result_endAt == undefined) {
+        res.status(404).json({
+            returnValue: false,
+            errMsg: "Not exist station",
+        });
+        return;
+    }
+
+    if (result_startAt.list_total_count._text == "1") {
+        console.log(result_startAt.row.STATION_NM._text);
+        if (
+            !(
+                result_startAt.row.STATION_NM._text == startAt.next &&
+                result_startAt.row.LINE_NUM._text.replace("0", "") == startAt.line
+            )
+        ) {
+            res.status(404).json({
+                returnValue: false,
+                errMsg: "Incorrect startAt.next station",
+            });
+            return;
+        }
+    } else {
+        for (let i = 0; i < result_startAt.list_total_count._text; i++) {
+            if (
+                result_startAt.row[i].STATION_NM._text == startAt.next &&
+                result_startAt.row[i].LINE_NUM._text.replace("0", "") == startAt.line
+            ) {
+                startAt_flag = false;
+                break;
+            }
+        }
+        if (startAt_flag) {
+            res.status(404).json({
+                returnValue: false,
+                errMsg: "Incorrect startAt.next station",
+            });
+            return;
+        }
+    }
+
+    if (result_endAt.list_total_count._text == "1") {
+        if (!(result_endAt.row.STATION_NM._text == endAt.next && result_endAt.row.LINE_NUM._text.replace("0", "") == endAt.line)) {
+            res.status(404).json({
+                returnValue: false,
+                errMsg: "Incorrect endAt.next station",
+            });
+            return;
+        }
+    } else {
+        for (let i = 0; i < result_endAt.list_total_count._text; i++) {
+            if (
+                result_endAt.row[i].STATION_NM._text == endAt.next &&
+                result_endAt.row[i].LINE_NUM._text.replace("0", "") == endAt.line
+            ) {
+                endAt_flag = false;
+                break;
+            }
+        }
+        if (endAt_flag) {
+            res.status(404).json({
+                returnValue: false,
+                errMsg: "Incorrect endAt.next station",
+            });
+            return;
+        }
+    }
+
     /* stationList에서 해당 역이 있는 없는지를 판단 */
     await findStationList(mongoose, stationName)
         .then((result) => {
