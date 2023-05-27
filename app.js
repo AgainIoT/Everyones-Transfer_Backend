@@ -29,7 +29,7 @@ app.use(
     })
 );
 
-app.get("/station/getStationList", async (req, res) => {
+app.post("/station/getStationList", async (req, res) => {
     let stationInfo = {
         stationName: req.body.stationName,
         collectionID: "",
@@ -80,7 +80,7 @@ app.get("/station/getStationList", async (req, res) => {
         });
 });
 
-app.get("/root/getRoot", async (req, res) => {
+app.post("/root/getRoot", async (req, res) => {
     // startAt이랑 endAt을 한번 더 검사하는 부분 추가했으면 좋겠음
     if (req.session.APP_KEY != APP_KEY) {
         res.status(400).json({
@@ -296,7 +296,7 @@ app.get("/root/getRoot", async (req, res) => {
     res.json(response);
 });
 
-app.get("/block/getBlock", async (req, res) => {
+app.post("/block/getBlock", async (req, res) => {
     if (req.session.APP_KEY != APP_KEY) {
         res.status(400).send({
             returnValue: false,
@@ -424,7 +424,7 @@ app.patch("/root/patchRoot", async (req, res) => {
         });
 });
 
-app.get("/cookie", (req, res) => {
+app.post("/cookie", (req, res) => {
     console.log(req.session);
     console.log(req.body.test);
     res.json({
@@ -433,7 +433,7 @@ app.get("/cookie", (req, res) => {
     });
 });
 
-app.get("/remove", (req, res) => {
+app.post("/remove", (req, res) => {
     res.json({
         test: req.session.collectionID,
     });
