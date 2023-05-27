@@ -47,9 +47,9 @@ app.get("/station/getStationList", async (req, res) => {
     await getStationInfo(req.body.stationName)
         .then((result) => {
             if (result == undefined) {
-                res.json({ returnValue: false, errMsg: "역 이름이 아닙니다" });
+                res.status(400).json({ returnValue: false, errMsg: "역 이름이 아닙니다" });
             } else if (result.list_total_count._text == 1) {
-                res.json({ returnValue: false, errMsg: "환승역이 아닙니다" });
+                res.status(400).json({ returnValue: false, errMsg: "환승역이 아닙니다" });
             } else {
                 stationInfo.LineCnt = result.list_total_count._text;
                 stationInfo.returnValue = true;
@@ -73,7 +73,7 @@ app.get("/station/getStationList", async (req, res) => {
             console.log("[/station/getLine] error!");
             console.log(err);
             console.log("------------------------------------");
-            res.json({
+            res.status(400).json({
                 returnValue: false,
                 errMsg: "API에 조회가 되지 않습니다.",
             });
@@ -83,7 +83,7 @@ app.get("/station/getStationList", async (req, res) => {
 app.get("/root/getRoot", async (req, res) => {
     // startAt이랑 endAt을 한번 더 검사하는 부분 추가했으면 좋겠음
     if (req.session.APP_KEY != APP_KEY) {
-        res.send({
+        res.status(400).json({
             returnValue: false,
             errMsg: "APP_KEY가 일치하지 않습니다.",
         });
@@ -298,7 +298,7 @@ app.get("/root/getRoot", async (req, res) => {
 
 app.get("/block/getBlock", async (req, res) => {
     if (req.session.APP_KEY != APP_KEY) {
-        res.send({
+        res.status(400).send({
             returnValue: false,
             errMsg: "APP_KEY가 일치하지 않습니다.",
         });
@@ -343,7 +343,7 @@ app.get("/block/getBlock", async (req, res) => {
 
 app.patch("/block/patchBlock", async (req, res) => {
     if (req.session.APP_KEY != APP_KEY) {
-        res.send({
+        res.status(400).send({
             returnValue: false,
             errMsg: "APP_KEY가 일치하지 않습니다.",
         });
@@ -373,13 +373,13 @@ app.patch("/block/patchBlock", async (req, res) => {
             console.log(response);
             console.log(err);
             console.log("------------------------------------");
-            res.json(response);
+            res.status(400).json(response);
         });
 });
 
 app.patch("/root/patchRoot", async (req, res) => {
     if (req.session.APP_KEY != APP_KEY) {
-        res.send({
+        res.status(400).send({
             returnValue: false,
             errMsg: "APP_KEY가 일치하지 않습니다.",
         });
@@ -410,7 +410,7 @@ app.patch("/root/patchRoot", async (req, res) => {
                     console.log("[block/patchRoot] session successfully destroyed");
                 }
             });
-            res.json(response);
+            res.status(400).json(response);
         })
         .catch((err) => {
             response.returnValue = false;
@@ -420,7 +420,7 @@ app.patch("/root/patchRoot", async (req, res) => {
             console.log(response);
             console.log(err);
             console.log("------------------------------------");
-            res.json(response);
+            res.status(400).json(response);
         });
 });
 
