@@ -3,3 +3,5 @@ yarn-error.log
 .env
 route.rest
 .vscode
+app.log
+openapi.log

@@ -19,8 +19,8 @@
     "xml-js": "^1.6.11"
   },
   "scripts": {
-    "app-start": "forever start -c nodemon app.js",
-    "openapi-start": "forever start -c nodemon openapi.js",
-    "start": "forever start -c nodemon app.js && forever start -c nodemon openapi.js"
+    "app-start": "forever start -o app.log -c nodemon app.js",
+    "openapi-start": "forever start -o openapi.log -c nodemon openapi.js",
+    "start": "forever start -o app.log -c nodemon app.js && forever start -0 openapi.log -c nodemon openapi.js"
   }
 }
