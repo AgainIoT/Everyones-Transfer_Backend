@@ -34,7 +34,7 @@ APP_KEY = "<자신이 사용할 앱 전용 접근 키>"
 <br>
 
 ### 초기 세팅
-.env 파일을 만들어서 넣어준 이후 다음과 같은 명령을 통해서 초기 세팅을 진행한다.
+.env 파일을 만들어서 넣어준 이후 다음과 같은 명령을 통해서 초기 세팅을 진행합니다.
 
 ```bash
 yarn install
@@ -57,7 +57,7 @@ yarn install
 <br>
 
 ## 빠른 실행
-yarn-script를 통해 빠른 실행을 할 수 있다.
+yarn-script를 통해 빠른 실행을 할 수 있습니다.
 ```bash
 yarn app-start # app.js 실행(app 전용)
 yarn openapi-start # openapi.js 실행(openapi 제공용)
@@ -68,4 +68,3 @@ yarn start # app.js와 openapi.js 한 번에 실행
 
 ## LICENSE
 이 프로젝트는 MIT 라이선스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
-
